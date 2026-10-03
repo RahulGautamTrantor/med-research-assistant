@@ -261,23 +261,70 @@ function renderCaseAnalysis(data) {
   }
 
   // 3-Tier Differential Diagnoses
-  if (data.differentials && data.differentials.length > 0) {
+  if (data.differentials) {
     html += `<div class="section-block"><div class="section-title-sm">🎯 3-Tier Differential Diagnoses</div>`;
-    data.differentials.forEach(diff => {
-      let tierClass = "tier-1";
-      if (diff.tier && diff.tier.toLowerCase().includes("cannot-miss")) tierClass = "tier-2";
-      if (diff.tier && diff.tier.toLowerCase().includes("zebra")) tierClass = "tier-3";
-
-      html += `
-        <div class="diff-card">
-          <div class="diff-header">
-            <span class="diff-diagnosis">${escapeHtml(diff.diagnosis)}</span>
-            <span class="tier-badge ${tierClass}">${escapeHtml(diff.tier)}</span>
+    
+    // Tier 1: High Probability
+    if (data.differentials.high_probability && data.differentials.high_probability.length > 0) {
+      data.differentials.high_probability.forEach(item => {
+        html += `
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-diagnosis">${escapeHtml(item.diagnosis)}</span>
+              <span class="tier-badge tier-1">Tier 1: High Probability (${escapeHtml(item.probability || "Leading")})</span>
+            </div>
+            <p class="diff-text"><strong>Supporting:</strong> ${escapeHtml(item.supporting_features)}</p>
+            ${item.contra_features ? `<p class="diff-text" style="color:var(--text-muted); margin-top:4px;"><strong>Differentiating:</strong> ${escapeHtml(item.contra_features)}</p>` : ""}
           </div>
-          <p class="diff-text">${escapeHtml(diff.rationale)}</p>
-        </div>
-      `;
-    });
+        `;
+      });
+    }
+
+    // Tier 2: Cannot-Miss Emergencies
+    if (data.differentials.cannot_miss_emergencies && data.differentials.cannot_miss_emergencies.length > 0) {
+      data.differentials.cannot_miss_emergencies.forEach(item => {
+        html += `
+          <div class="diff-card" style="border-left: 3px solid var(--accent-red);">
+            <div class="diff-header">
+              <span class="diff-diagnosis" style="color:#fca5a5;">${escapeHtml(item.diagnosis)}</span>
+              <span class="tier-badge tier-2">Tier 2: Cannot-Miss Emergency (${escapeHtml(item.severity || "STAT")})</span>
+            </div>
+            <p class="diff-text">${escapeHtml(item.rationale)}</p>
+          </div>
+        `;
+      });
+    }
+
+    // Tier 3: Rare Zebras
+    if (data.differentials.rare_zebras && data.differentials.rare_zebras.length > 0) {
+      data.differentials.rare_zebras.forEach(item => {
+        html += `
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-diagnosis">${escapeHtml(item.diagnosis)}</span>
+              <span class="tier-badge tier-3">Tier 3: Zebra / Atypical</span>
+            </div>
+            <p class="diff-text">${escapeHtml(item.rationale)}</p>
+          </div>
+        `;
+      });
+    }
+
+    // Fallback if differentials is an array
+    if (Array.isArray(data.differentials)) {
+      data.differentials.forEach(diff => {
+        html += `
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-diagnosis">${escapeHtml(diff.diagnosis || diff)}</span>
+              <span class="tier-badge tier-1">Differential</span>
+            </div>
+            <p class="diff-text">${escapeHtml(diff.rationale || "")}</p>
+          </div>
+        `;
+      });
+    }
+
     html += `</div>`;
   }
 
@@ -286,51 +333,78 @@ function renderCaseAnalysis(data) {
     <div class="detail-grid">
       <div class="detail-block">
         <h4>🔬 Targeted Diagnostic Workup</h4>
-        <ul class="detail-list">
   `;
   if (data.diagnostic_workup && data.diagnostic_workup.length > 0) {
-    data.diagnostic_workup.forEach(item => {
-      html += `<li><strong>${escapeHtml(item.category)}:</strong> ${escapeHtml(item.test)} - <em>${escapeHtml(item.clinical_intent)}</em></li>`;
+    data.diagnostic_workup.forEach(tierObj => {
+      html += `<div style="font-size:12px; font-weight:700; color:var(--accent-cyan); margin: 8px 0 4px;">${escapeHtml(tierObj.tier || "Workup Tier")}</div><ul class="detail-list">`;
+      (tierObj.tests || []).forEach(test => {
+        html += `<li>${escapeHtml(test)}</li>`;
+      });
+      html += `</ul>`;
     });
   } else {
-    html += `<li>Routine comprehensive diagnostic evaluation indicated.</li>`;
+    html += `<ul class="detail-list"><li>Routine comprehensive diagnostic evaluation indicated.</li></ul>`;
   }
   html += `
-        </ul>
       </div>
       <div class="detail-block">
         <h4>💊 Initial Evidence-Based Management</h4>
-        <ul class="detail-list">
   `;
-  if (data.management_protocol && data.management_protocol.length > 0) {
-    data.management_protocol.forEach(item => {
-      html += `<li><strong>${escapeHtml(item.step)}:</strong> ${escapeHtml(item.action)} (${escapeHtml(item.rationale)})</li>`;
-    });
+  if (data.management_protocol) {
+    if (data.management_protocol.clinical_score) {
+      html += `<div style="font-size:12px; background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3); padding:6px 10px; border-radius:4px; margin-bottom:8px; color:#bae6fd;"><strong>Clinical Score:</strong> ${escapeHtml(data.management_protocol.clinical_score)}</div>`;
+    }
+    if (data.management_protocol.initial_regimen && data.management_protocol.initial_regimen.length > 0) {
+      html += `<div style="font-size:12px; font-weight:700; color:var(--accent-teal); margin-bottom:4px;">Primary Regimen:</div><ul class="detail-list">`;
+      data.management_protocol.initial_regimen.forEach(act => {
+        html += `<li>${escapeHtml(act)}</li>`;
+      });
+      html += `</ul>`;
+    }
+    if (data.management_protocol.prophylaxis && data.management_protocol.prophylaxis.length > 0) {
+      html += `<div style="font-size:12px; font-weight:700; color:var(--accent-amber); margin:8px 0 4px;">Prophylaxis & Protection:</div><ul class="detail-list">`;
+      data.management_protocol.prophylaxis.forEach(pr => {
+        html += `<li>${escapeHtml(pr)}</li>`;
+      });
+      html += `</ul>`;
+    }
+    if (data.management_protocol.monitoring) {
+      html += `<div style="font-size:11px; color:var(--text-muted); margin-top:8px;"><strong>Monitoring:</strong> ${escapeHtml(data.management_protocol.monitoring)}</div>`;
+    }
   } else {
-    html += `<li>Hemodynamic stabilization & supportive therapy.</li>`;
+    html += `<ul class="detail-list"><li>Hemodynamic stabilization & supportive therapy.</li></ul>`;
   }
   html += `
-        </ul>
       </div>
     </div>
   `;
 
-  // Red Flags & Consultations
-  if (data.red_flags && data.red_flags.length > 0) {
-    html += `
-      <div class="section-block" style="margin-top: 20px;">
-        <div class="section-title-sm">⚠️ High-Risk Red Flags & Complications</div>
-        <div class="takeaway-box" style="border-color: rgba(239, 68, 68, 0.4);">
+  // Red Flags & Specialist Consultations
+  if ((data.red_flags && data.red_flags.length > 0) || (data.specialist_consultations && data.specialist_consultations.length > 0)) {
+    html += `<div class="detail-grid" style="margin-top: 16px;">`;
+    if (data.red_flags && data.red_flags.length > 0) {
+      html += `
+        <div class="detail-block" style="border-color: rgba(239, 68, 68, 0.4);">
+          <h4 style="color:var(--accent-red);">⚠️ High-Risk Red Flags</h4>
           <ul class="detail-list">
-    `;
-    data.red_flags.forEach(flag => {
-      html += `<li style="color:#fca5a5;">${escapeHtml(flag)}</li>`;
-    });
-    html += `
-          </ul>
-        </div>
-      </div>
-    `;
+      `;
+      data.red_flags.forEach(flag => {
+        html += `<li style="color:#fca5a5;">${escapeHtml(flag)}</li>`;
+      });
+      html += `</ul></div>`;
+    }
+    if (data.specialist_consultations && data.specialist_consultations.length > 0) {
+      html += `
+        <div class="detail-block">
+          <h4 style="color:var(--accent-purple);">🩺 Subspecialty Consultations</h4>
+          <ul class="detail-list">
+      `;
+      data.specialist_consultations.forEach(c => {
+        html += `<li><strong>${escapeHtml(c)}</strong></li>`;
+      });
+      html += `</ul></div>`;
+    }
+    html += `</div>`;
   }
 
   html += `</div>`;
