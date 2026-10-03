@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Research Assistant | Specialist Clinical Intelligence for MD Medicine</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon">🩺</div>
+        <div class="brand-titles">
+          <h1>Medical Research Assistant</h1>
+          <p>Specialist Decision Support Engine for MD Medicine & Critical Care</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="engine-badge" id="engine-badge">
+          <span class="engine-dot loading" id="engine-status-dot"></span>
+          <span id="engine-status-text">Detecting Engine...</span>
+        </div>
+        <button class="engine-select-btn" id="engine-switch-btn" title="Toggle between local FastAPI and client-side Pyodide WebAssembly">Switch Engine</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="case-processor" role="tab">
+        <span class="tab-icon">🩺</span> Patient Case Processor
+      </button>
+      <button class="tab-btn" data-tab="paper-summarizer" role="tab">
+        <span class="tab-icon">📑</span> Research Paper Summarizer
+      </button>
+      <button class="tab-btn" data-tab="guidelines-browser" role="tab">
+        <span class="tab-icon">📚</span> Clinical Guidelines Explorer
+      </button>
+      <button class="tab-btn" data-tab="architecture-docs" role="tab">
+        <span class="tab-icon">⚙️</span> Engine Architecture
+      </button>
+    </nav>
+
+    <!-- TAB 1: Case Processor -->
+    <section class="tab-panel active" id="case-processor">
+      <div class="split-grid">
+        <!-- Input Column -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>📋</span> Clinical Presentation Input</h2>
+          </div>
+
+          <!-- Preset Case Studies -->
+          <div class="sample-presets">
+            <span class="preset-label">Pre-Loaded MD Medicine Clinical Vignettes</span>
+            <div class="preset-buttons">
+              <button class="preset-btn case-preset-btn" data-id="case-mda5">
+                <strong>Anti-MDA5 Dermatomyositis:</strong> 58M Rapidly progressive dyspnea, mechanic's hands, ferritin 3,450
+              </button>
+              <button class="preset-btn case-preset-btn" data-id="case-ttp-sle">
+                <strong>aTTP in SLE:</strong> 34F Fever, malar rash, platelets 14k, MAHA schistocytes & confusion
+              </button>
+              <button class="preset-btn case-preset-btn" data-id="case-crs-hfref">
+                <strong>ADHF / CRS Type 1:</strong> 67M HFrEF (EF 25%), volume overload, Cr 3.4, furosemide resistance
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="case-title">Case Title / Identifier</label>
+            <input type="text" id="case-title" class="form-input" placeholder="e.g. 58M with Hypoxemic Respiratory Failure">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="case-input">Comprehensive Clinical Vignette (HPI, Vitals, Labs, Imaging)</label>
+            <textarea id="case-input" class="form-textarea" placeholder="Paste or type patient clinical history, vitals, exam, lab values, and diagnostic imaging..."></textarea>
+          </div>
+
+          <button id="analyze-case-btn" class="btn-primary">
+            <span>⚡</span> Run Specialist Clinical Synthesis
+          </button>
+        </div>
+
+        <!-- Output Column -->
+        <div id="case-output-container">
+          <div class="output-placeholder">
+            <div class="icon">🩺</div>
+            <h3>Specialist Reasoning Output</h3>
+            <p>Select a pre-loaded clinical vignette or enter a custom patient case study, then click "Run Specialist Clinical Synthesis".</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Research Paper Summarizer -->
+    <section class="tab-panel" id="paper-summarizer">
+      <div class="split-grid">
+        <!-- Input Column -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>📑</span> Medical Research Paper Input</h2>
+          </div>
+
+          <!-- Preset Landmark Papers -->
+          <div class="sample-presets">
+            <span class="preset-label">Pre-Loaded Landmark Clinical Trials</span>
+            <div class="preset-buttons">
+              <button class="preset-btn paper-preset-btn" data-id="paper-dapa-hf">
+                <strong>DAPA-HF (NEJM 2019):</strong> Dapagliflozin in HFrEF with/without Diabetes (N=4,744)
+              </button>
+              <button class="preset-btn paper-preset-btn" data-id="paper-recovery">
+                <strong>RECOVERY (NEJM 2021):</strong> Dexamethasone in Hospitalized COVID-19 Hypoxemia (N=6,425)
+              </button>
+              <button class="preset-btn paper-preset-btn" data-id="paper-fidelio">
+                <strong>FIDELIO-DKD (NEJM 2020):</strong> Finerenone Nonsteroidal MRA in Diabetic CKD (N=5,734)
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-title">Trial Title & Acronym</label>
+            <input type="text" id="paper-title" class="form-input" placeholder="e.g. DAPA-HF: Dapagliflozin in Heart Failure">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-input">Paper Abstract / Trial Summary Text</label>
+            <textarea id="paper-input" class="form-textarea" placeholder="Paste medical trial abstract containing Background, Methods, Results, and Conclusions..."></textarea>
+          </div>
+
+          <button id="summarize-paper-btn" class="btn-primary">
+            <span>📑</span> Generate Trial Analysis & MD Summary
+          </button>
+        </div>
+
+        <!-- Output Column -->
+        <div id="paper-output-container">
+          <div class="output-placeholder">
+            <div class="icon">📊</div>
+            <h3>Structured Trial Synthesis</h3>
+            <p>Select a landmark clinical trial or paste any medical research abstract to extract PICO, ARR, NNT, statistical endpoints, and practice-changing takeaways.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Clinical Guidelines Explorer -->
+    <section class="tab-panel" id="guidelines-browser">
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>📚</span> Evidence-Based Clinical Practice Guidelines</h2>
+            <p class="card-subtitle">Structured pharmacotherapy pillars, recommendation classes, dosing schedules & clinical pearls</p>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-top: 10px;">
+          <div>
+            <label class="form-label" for="guideline-search-input">Search Guidelines by Drug, Disease, or Recommendation</label>
+            <input type="text" id="guideline-search-input" class="form-input" placeholder="e.g. SGLT2, Norepinephrine, Finerenone, Sepsis, COPD...">
+          </div>
+          <div>
+            <label class="form-label" for="specialty-filter-select">Medical Subspecialty</label>
+            <select id="specialty-filter-select" class="form-select">
+              <option value="all">All Specialties</option>
+              <option value="cardiology">Cardiology (AHA/ACC/HFSA)</option>
+              <option value="nephrology">Nephrology (KDIGO)</option>
+              <option value="critical care">Critical Care / ID (Surviving Sepsis)</option>
+              <option value="pulmonology">Pulmonology (GOLD)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guidelines Container -->
+      <div id="guidelines-list-container"></div>
+    </section>
+
+    <!-- TAB 4: Architecture & Engine Docs -->
+    <section class="tab-panel" id="architecture-docs">
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <h2 class="card-title"><span>⚙️</span> Dual-Engine Python Architecture & Deployment Specification</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+          <div class="detail-block">
+            <h4 style="color:var(--accent-cyan);">⚡ Mode 1: Local / Cloud Server (FastAPI + Python 3.14)</h4>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">
+              Designed for local development, clinical intranets, and containerized cloud deployments (Docker/Kubernetes).
+            </p>
+            <ul class="detail-list">
+              <li>High-throughput asynchronous REST API backed by Uvicorn and Starlette.</li>
+              <li>Pydantic v2 data validation with full JSON Schema compliance.</li>
+              <li>Interactive Swagger UI documentation accessible at <code>/docs</code>.</li>
+              <li>Direct integration with hospital EMR pipelines and external LLM/RAG sidecars.</li>
+            </ul>
+          </div>
+
+          <div class="detail-block">
+            <h4 style="color:var(--accent-green);">🟢 Mode 2: Client-Side WebAssembly (Pyodide Wasm - GitHub Pages)</h4>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">
+              Enables 100% serverless, zero-cost deployment on GitHub Pages while executing the identical genuine Python modules.
+            </p>
+            <ul class="detail-list">
+              <li>Python 3 compiled to WebAssembly via Pyodide.</li>
+              <li>Runs the identical <code>med_assistant</code> Python package directly in the client browser's memory.</li>
+              <li>Zero backend infrastructure required: works completely offline once cached.</li>
+              <li>Absolute privacy: patient vignettes and research abstracts never leave the local browser session.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title-sm">🛠️ Verification & Quickstart Commands</div>
+          <div style="background:var(--bg-input); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:16px; font-family:var(--font-mono); font-size:13px; color:#93c5fd; overflow-x:auto;">
+            # 1. Clone repository<br>
+            git clone &lt;your-repo-url&gt; &amp;&amp; cd med-research-assistant<br><br>
+            # 2. Install dependencies<br>
+            pip install -r requirements.txt<br><br>
+            # 3. Launch local FastAPI server<br>
+            python3 app.py<br><br>
+            # 4. Open in browser<br>
+            http://localhost:8000
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>
+        <strong>Medical Research Assistant v1.0.0</strong> • MD Medicine Clinical Decision Support System
+      </div>
+      <div>
+        ⚠️ For clinical education and research synthesis by licensed medical practitioners. Correlate with clinical findings.
+      </div>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="static/js/samples.js"></script>
+  <script src="static/js/pyodide_runner.js"></script>
+  <script src="static/js/app.js"></script>
+</body>
+</html>
